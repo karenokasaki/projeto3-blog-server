@@ -16,7 +16,7 @@ const UserSchema = new Schema(
     passwordHash: { type: String, required: true },
     role: { type: String, enum: ["USER", "ADMIN"], default: "USER" },
     emailConfirm: { type: Boolean, default: false },
-    confirmationCode: { type: String },
+    imgUrl: { type: String },
   },
   {
     timestamps: true,
