@@ -125,7 +125,15 @@ router.get("/profile", isAuth, attachCurrentUser, async (req, res) => {
 
     const user = await UserModel.findById(loggedInUser._id, {
       passwordHash: 0,
-    }).populate("posts");
+    })
+      .populate("posts")
+      .populate({
+        path: "posts",
+        populate: {
+          path: "comments",
+          model: "Comment",
+        },
+      });
 
     return res.status(200).json(user);
   } catch (error) {
@@ -138,6 +146,7 @@ router.get("/profile", isAuth, attachCurrentUser, async (req, res) => {
 router.put("/edit", isAuth, attachCurrentUser, async (req, res) => {
   try {
     const loggedInUser = req.currentUser;
+    console.log(req.body);
 
     const editedUser = await UserModel.findByIdAndUpdate(
       loggedInUser._id,
@@ -148,7 +157,7 @@ router.put("/edit", isAuth, attachCurrentUser, async (req, res) => {
     );
 
     delete editedUser._doc.passwordHash;
-
+    console.log(editedUser);
     return res.status(200).json(editedUser);
   } catch (error) {
     console.log(error);
@@ -226,7 +235,7 @@ router.delete("/delete-user", isAuth, attachCurrentUser, async (req, res) => {
 
 //!ADMIN
 //rota para ver todos os usuário apenas para o administrador
-router.get("/all", isAuth, attachCurrentUser, isAdmin, async (req, res) => {
+router.get("/all", isAuth, attachCurrentUser, async (req, res) => {
   try {
     const allUsers = await UserModel.find({}, { passwordHash: 0 });
 
@@ -250,18 +259,26 @@ router.get("/all", isAuth, attachCurrentUser, isAdmin, async (req, res) => {
 }); */
 
 //profile
-/* router.get("/user/:id", async (req, res) => {
+router.get("/user/:id", isAuth, attachCurrentUser, async (req, res) => {
   try {
     const { id } = req.params;
 
-    const user = await UserModel.findById(id).populate("posts");
+    const user = await UserModel.findById(id)
+      .populate("posts")
+      .populate({
+        path: "posts",
+        populate: {
+          path: "comments",
+          model: "Comment",
+        },
+      });
 
     return res.status(200).json(user);
   } catch (error) {
     console.log(error);
     return res.status(400).json(error);
   }
-}); */
+});
 
 /* router.put("/edit/:idUser", async (req, res) => {
   try {
@@ -376,6 +393,17 @@ router.put(
         $addToSet: { followers: idUserFollowing },
       });
 
+      //envio de email
+      const mailOptions = {
+        from: "turma85wdft@hotmail.com",
+        to: userFollowed.email,
+        subject: "Alguém te seguiu!",
+        html: `<p>Olá, você tem um novo seguidor: ${userFollowed.username}</p>`,
+      };
+
+      // Dispara e-mail para o usuário
+      await transporter.sendMail(mailOptions);
+
       return res.status(200).json(userFollowing);
     } catch (error) {
       console.log(error);
@@ -435,6 +463,19 @@ router.get("/activate-account/:idUser", async (req, res) => {
     });
 
     res.send(`<h1>Usuário ativado</h1>`);
+  } catch (error) {
+    console.log(error);
+    return res.status(400).json(error);
+  }
+});
+
+router.get("/followers", isAuth, attachCurrentUser, async (req, res) => {
+  try {
+    const myFollowers = await UserModel.findById(req.currentUser._id)
+      .populate("followers")
+      .populate("following");
+
+    return res.status(200).json(myFollowers);
   } catch (error) {
     console.log(error);
     return res.status(400).json(error);

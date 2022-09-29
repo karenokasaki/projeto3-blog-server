@@ -4,10 +4,13 @@ const router = express.Router();
 const UserModel = require("../models/User.model");
 const PostModel = require("../models/Post.model");
 const CommentModel = require("../models/Comment.model");
+const isAuth = require("../middlewares/isAuth");
+const attachCurrentUser = require("../middlewares/attachCurrentUser");
 
-router.post("/create/:idPost/:idAuthor", async (req, res) => {
+router.post("/create/:idPost", isAuth, attachCurrentUser, async (req, res) => {
   try {
-    const { idPost, idAuthor } = req.params;
+    const idAuthor = req.currentUser._id;
+    const { idPost } = req.params;
 
     const newComment = await CommentModel.create({
       ...req.body,
@@ -47,7 +50,7 @@ router.put("/edit/:idComment", async (req, res) => {
   }
 });
 
-router.delete("/delete/:idComment", async (req, res) => {
+router.delete("/delete/:idComment", isAuth, attachCurrentUser, async (req, res) => {
   try {
     const { idComment } = req.params;
 

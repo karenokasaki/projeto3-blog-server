@@ -16,7 +16,11 @@ const UserSchema = new Schema(
     passwordHash: { type: String, required: true },
     role: { type: String, enum: ["USER", "ADMIN"], default: "USER" },
     emailConfirm: { type: Boolean, default: false },
-    imgUrl: { type: String },
+    profilePic: {
+      type: String,
+      default:
+        "https://toppng.com/uploads/preview/instagram-default-profile-picture-11562973083brycehrmyv.png",
+    },
   },
   {
     timestamps: true,
