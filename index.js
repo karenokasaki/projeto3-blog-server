@@ -9,10 +9,6 @@ const app = express();
 app.use(express.json());
 app.use(cors({ origin: process.env.REACT_APP_URI }));
 
-//middleware teste
-//const logRequest = require("./middlewares/requests");
-//app.use(logRequest);
-
 //ROTAS
 const UsersRoute = require("./routes/users.routes");
 app.use("/users", UsersRoute);

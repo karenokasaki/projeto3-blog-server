@@ -1,5 +1,8 @@
+<<<<<<< HEAD
+=======
 // config/cloudinary.config.js
 
+>>>>>>> 9a09d0cdc2b612142725bd1853fd1902830c3718
 const cloudinary = require("cloudinary").v2;
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const multer = require("multer");
@@ -11,6 +14,15 @@ cloudinary.config({
 });
 
 const storage = new CloudinaryStorage({
+<<<<<<< HEAD
+  cloudinary,
+  params: {
+    allowed_formats: ["jpg", "png"],
+    folder: "blog-85-wd",
+  },
+});
+
+=======
   // cloudinary: cloudinary,
   cloudinary,
   params: {
@@ -21,4 +33,5 @@ const storage = new CloudinaryStorage({
 });
 
 //                     storage: storage
+>>>>>>> 9a09d0cdc2b612142725bd1853fd1902830c3718
 module.exports = multer({ storage });
