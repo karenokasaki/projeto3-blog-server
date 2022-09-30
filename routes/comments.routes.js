@@ -1,10 +1,9 @@
 const express = require("express");
 const router = express.Router();
-
+//karen
 const UserModel = require("../models/User.model");
 const PostModel = require("../models/Post.model");
 const CommentModel = require("../models/Comment.model");
-
 const isAuth = require("../middlewares/isAuth");
 const attachCurrentUser = require("../middlewares/attachCurrentUser");
 
