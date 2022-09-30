@@ -125,7 +125,15 @@ router.get("/profile", isAuth, attachCurrentUser, async (req, res) => {
 
     const user = await UserModel.findById(loggedInUser._id, {
       passwordHash: 0,
-    }).populate("posts");
+    })
+      .populate("posts")
+      .populate({
+        path: "posts",
+        populate: {
+          path: "comments",
+          model: "Comment",
+        },
+      });
 
     return res.status(200).json(user);
   } catch (error) {
@@ -226,7 +234,7 @@ router.delete("/delete-user", isAuth, attachCurrentUser, async (req, res) => {
 
 //!ADMIN
 //rota para ver todos os usuário apenas para o administrador
-router.get("/all", isAuth, attachCurrentUser, isAdmin, async (req, res) => {
+router.get("/all", isAuth, attachCurrentUser, async (req, res) => {
   try {
     const allUsers = await UserModel.find({}, { passwordHash: 0 });
 
@@ -250,18 +258,26 @@ router.get("/all", isAuth, attachCurrentUser, isAdmin, async (req, res) => {
 }); */
 
 //profile
-/* router.get("/user/:id", async (req, res) => {
+router.get("/user/:id", isAuth, attachCurrentUser, async (req, res) => {
   try {
     const { id } = req.params;
 
-    const user = await UserModel.findById(id).populate("posts");
+    const user = await UserModel.findById(id)
+      .populate("posts")
+      .populate({
+        path: "posts",
+        populate: {
+          path: "comments",
+          model: "Comment",
+        },
+      });
 
     return res.status(200).json(user);
   } catch (error) {
     console.log(error);
     return res.status(400).json(error);
   }
-}); */
+});
 
 /* router.put("/edit/:idUser", async (req, res) => {
   try {

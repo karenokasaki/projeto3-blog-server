@@ -5,9 +5,13 @@ const UserModel = require("../models/User.model");
 const PostModel = require("../models/Post.model");
 const CommentModel = require("../models/Comment.model");
 
-router.post("/create/:idPost/:idAuthor", async (req, res) => {
+const isAuth = require("../middlewares/isAuth");
+const attachCurrentUser = require("../middlewares/attachCurrentUser");
+
+router.post("/create/:idPost", isAuth, attachCurrentUser, async (req, res) => {
   try {
-    const { idPost, idAuthor } = req.params;
+    const idAuthor = req.currentUser._id;
+    const { idPost } = req.params;
 
     const newComment = await CommentModel.create({
       ...req.body,
@@ -28,7 +32,7 @@ router.post("/create/:idPost/:idAuthor", async (req, res) => {
   }
 });
 
-router.put("/edit/:idComment", async (req, res) => {
+router.put("/edit/:idComment", isAuth, attachCurrentUser, async (req, res) => {
   try {
     const { idComment } = req.params;
 
@@ -47,30 +51,35 @@ router.put("/edit/:idComment", async (req, res) => {
   }
 });
 
-router.delete("/delete/:idComment", async (req, res) => {
-  try {
-    const { idComment } = req.params;
+router.delete(
+  "/delete/:idComment",
+  isAuth,
+  attachCurrentUser,
+  async (req, res) => {
+    try {
+      const { idComment } = req.params;
 
-    //apaguei o comentário do CommentModel
-    const deletedComment = await CommentModel.findByIdAndDelete(idComment);
+      //apaguei o comentário do CommentModel
+      const deletedComment = await CommentModel.findByIdAndDelete(idComment);
 
-    //apagar o ID do comentário da ARRAY comments, no PostModel
-    await PostModel.findByIdAndUpdate(
-      deletedComment.post,
-      {
-        $pull: {
-          comments: idComment,
+      //apagar o ID do comentário da ARRAY comments, no PostModel
+      await PostModel.findByIdAndUpdate(
+        deletedComment.post,
+        {
+          $pull: {
+            comments: idComment,
+          },
         },
-      },
-      { new: true }
-    );
+        { new: true }
+      );
 
-    return res.status(200).json("comentário deletado :D");
-  } catch (error) {
-    console.log(error);
-    return res.status(400).json(error);
+      return res.status(200).json("comentário deletado :D");
+    } catch (error) {
+      console.log(error);
+      return res.status(400).json(error);
+    }
   }
-});
+);
 
 router.put("/like/:idComment", async (req, res) => {
   try {
